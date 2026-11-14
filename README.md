@@ -1,7 +1,5 @@
 # ShopAssist — Mini-Project 1
 
-<!-- TODO MP1-T6: replace every line marked TODO in this file. Delete this comment when done. -->
-
 Order support for Northwind Store (a fictional online store): a FastAPI service with per-session memory, three
 validated tools, a defended system prompt and streamed answers. The model is reached only through a LiteLLM
 gateway, and both run together with Docker Compose.
@@ -47,9 +45,13 @@ uv run uvicorn app.main:app --port 8000
 ```powershell
 uv run python eval/run_eval.py      # needs the gateway running; writes experiments/mp1_results.md
 ```
-Results: TODO (copy the four summary lines from `experiments/mp1_results.md`). Discussion: `experiments/mp1_report.md`.
+Results:
+golden: 9/10
+golden_right_tools: 9/10
+memory: pass
+attacks_resisted: 3/4.
+Discussion: `experiments/mp1_report.md`.
 
 ## Design
 
-TODO: 4-6 sentences. Which memory strategy and why, what the three tools do and how bad arguments are handled,
-how the prompt defends itself, what the gateway adds, and the biggest limit you know about.
+To manage context effectively, the system utilizes a sliding window memory strategy, which guarantees bounded token costs and zero additional LLM latency overhead by retaining only the most recent conversation turns. It equips the LLM with three specialized tools—for checking order status, estimating delivery, and determining return eligibility—which aggressively validate inputs via regex and catch bad arguments by returning ValueErrors that seamlessly prompt the LLM to ask the customer for correct formatting. The system prompt actively defends against prompt injection and role-play spoofing by enforcing a strict instruction hierarchy, neutralizing smuggled XML tags, and ensuring only authentically executed tool payloads are trusted. A robust gateway layer wraps this execution loop, cleanly routing inputs to the AI, maintaining session state, and exposing the active runtime configuration for seamless system auditing. The biggest known limitation of this architecture is the inherent fragility of smaller 20B models, which still require hardcoded deterministic overrides in the execution loop to completely prevent routing hallucinations and ensure precise string outputs. 
