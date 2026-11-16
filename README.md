@@ -4,9 +4,9 @@ Order support for Northwind Store (a fictional online store): a FastAPI service 
 validated tools, a defended system prompt and streamed answers. The model is reached only through a LiteLLM
 gateway, and both run together with Docker Compose.
 
-**Author:** TODO (name, GitHub username)
-**Model tested:** TODO (the model group and the real model behind it, e.g. `shopassist` → `groq/openai/gpt-oss-20b`)
+**Author:** Anurag Sharma(Anurag-0905)
 
+**Model tested:** `shopassist` → `groq/gpt-oss-20b` (with fallback to `shopassist-backup` → `groq/gpt-oss-120b`)
 ## Architecture
 
 ```
@@ -28,7 +28,7 @@ browser / client ──► app (FastAPI, :8000) ──► litellm gateway (:4000
 ```powershell
 docker compose up --build        # gateway + app; Ctrl+C to stop, docker compose down to remove
 ```
-Then open http://localhost:8000/docs. TODO: one sentence on how to check it's working (which URL, what you see).
+Then open http://localhost:8000/docs. To verify the service is running, navigate to `http://localhost:8000/health` in your browser; you should see a JSON response confirming the API is "ok" along with your active memory strategy and loaded tools.
 
 ## Run without Docker (Path B)
 
@@ -43,7 +43,7 @@ uv run uvicorn app.main:app --port 8000
 ## Evidence
 
 ```powershell
-uv run python eval/run_eval.py      # needs the gateway running; writes experiments/mp1_results.md
+uv run python eval/run_eval.py    
 ```
 Results:
 golden: 9/10

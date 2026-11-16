@@ -1,9 +1,3 @@
-"""GIVEN - ShopAssist's brain: the model (through the gateway), the system prompt from a file, and the capped,
-streaming tool loop.
-
-This is Session 23's PART 1, moved into its own file. You should not need to change it. If you do, explain why in
-experiments/mp1_report.md.
-"""
 import os
 from pathlib import Path
 
@@ -21,7 +15,7 @@ CAP_MESSAGE = "Sorry, I couldn't finish that one. Could you ask it in a simpler 
 
 
 def load_system_prompt() -> str:
-    """The system prompt lives in a file (Session 16): reviewed and versioned like code, changed without touching code."""
+    """The system prompt lives in a file : reviewed and versioned like code, changed without touching code."""
     return PROMPT_FILE.read_text(encoding="utf-8")
 
 
@@ -30,7 +24,7 @@ MODEL = os.getenv("MODEL", "shopassist")                           # a MODEL GRO
 
 
 def make_llm():
-    """The app talks ONLY to the LiteLLM gateway (Session 23b). It never sees the Groq key: the gateway holds it,
+    """The app talks ONLY to the LiteLLM gateway . It never sees the Groq key: the gateway holds it,
     picks the real model for the group "shopassist", and falls back to "shopassist-backup" if that fails."""
     return ChatOpenAI(model=MODEL, base_url=GATEWAY_URL, api_key=os.environ["LITELLM_MASTER_KEY"],
                       temperature=0, max_tokens=1500)

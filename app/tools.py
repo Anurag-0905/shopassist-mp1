@@ -7,7 +7,7 @@ from langchain_core.tools import tool
 
 DATA = json.loads((Path(__file__).resolve().parents[1] / "data" / "orders.json").read_text(encoding="utf-8"))
 ORDERS = {o["order_id"]: o for o in DATA["orders"]}
-TODAY = date.fromisoformat(DATA["store_today"])          # fixed, so every run gives the same answers
+TODAY = date.fromisoformat(DATA["store_today"])          
 
 RETURN_WINDOW_DAYS = 10                                  # normal returns: within 10 days of delivery
 DAMAGED_WINDOW_DAYS = 30                                 # damaged / defective / wrong item: within 30 days
@@ -22,7 +22,7 @@ def _find(order_id: str) -> dict:
     if not re.match(r"^ORD-\d{5}$", order_id):
         raise ValueError(f"order_id must look like ORD-12345, got {order_id!r}")
     if order_id not in ORDERS:
-        raise ValueError(f"no order {order_id} - ask the customer to check the order number")
+        raise ValueError(f"no order {order_id}, ask the customer to check the order number")
     return ORDERS[order_id]
 
 
@@ -76,32 +76,35 @@ def check_return_eligibility(order_id: str, reason: str) -> dict:
 
     if reason not in REASONS:
         raise ValueError(f"reason must be one of {list(REASONS)}, got {reason!r}")
+    
     if o.get("status") != "delivered":
-        return json.dumps({
-        "eligible": False, 
-        "why": "not delivered yet, you can cancel it on the website"
-        })
+        return {
+            "eligible": False, 
+            "why": "not delivered yet, you can cancel it on the website"
+        }
+        
     if o.get("category") in NON_RETURNABLE:
-        return json.dumps({
-        "eligible": False, 
-        "why": f"{o['category']} is non-returnable"
-        })
+        return {
+            "eligible": False, 
+            "why": f"{o['category']} is non-returnable"
+        }
+        
     window = DAMAGED_WINDOW_DAYS if reason in {"damaged", "defective", "wrong_item"} else RETURN_WINDOW_DAYS
     days = (TODAY - date.fromisoformat(o["delivered_on"])).days
+    
     if days > window:
-        return json.dumps({
-        "eligible": False, 
-        "why": f"delivered {days} days ago; window is {window} days"
-        })
-    return json.dumps({
-    "eligible": True,
-    "days_since_delivery": days,
-    "window_days": window,
-    "refund_rupees": o.get("price"),
-    "how": "start the return on the website: My Orders > Return"
-})
-
-
+        return {
+            "eligible": False, 
+            "why": f"delivered {days} days ago; window is {window} days"
+        }
+        
+    return {
+        "eligible": True,
+        "days_since_delivery": days,
+        "window_days": window,
+        "refund_rupees": o.get("price"),
+        "how": "start the return on the website: My Orders > Return"
+    }
 
 TOOLS = {"get_order_status": get_order_status, "get_delivery_estimate": get_delivery_estimate,
          "check_return_eligibility": check_return_eligibility}

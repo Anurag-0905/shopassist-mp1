@@ -1,8 +1,4 @@
-"""ShopAssist, served. YOU own this file. This is Session 23's PART 2, finished - compare it with yours.
 
-Run locally (gateway running, .env present):   uv run uvicorn app.main:app --port 8000
-Run everything in Docker:                     docker compose up --build   (see README.md)
-"""
 import json
 
 from fastapi import FastAPI
@@ -33,12 +29,14 @@ class ChatResponse(BaseModel):
 
 @app.get("/health")
 def health():
-    running_config = {
+    return {
+        "status": "ok", 
+        "model": agent.MODEL, 
+        "gateway": agent.GATEWAY_URL, 
         "memory": memory.STRATEGY,
         "keep_turns": memory.KEEP_TURNS,
         "tools": sorted(TOOLS)
     }
-    return {"status": "ok", "model": agent.MODEL, "gateway": agent.GATEWAY_URL, "config": running_config}
 
 
 def build_messages(history: list, message: str) -> list:
